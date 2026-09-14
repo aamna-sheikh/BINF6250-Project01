@@ -1,30 +1,87 @@
 # Introduction
-Description of the project
+In this project, we are parsing a Variant Call Format (VCF) file to identify and count rare diseases associated with a rare genetic variants, based on their ExAC alelle frequency. 
 
 # Pseudocode
+
 Put pseudocode in this box:
 
 ```
-parse_line(line)
-- take a string as an argument
-- extract AF_EXAC
-- if AF_EXAC is not present, skip the line
-- if AF_EXAC < 0.0001:
-    - get associated diseases from CLNDN
-    - do not count not_specified
-    - do not count not_provided
-    - return list of diseases
-- if variant is not rare:
-    - return empty list
+
+#!/usr/bin/env python
+from pprint import pprint
 
 
-read_file(filename)
-- take a string as an argument for the file
-- open the file
-- read the file line by line
-- pass each line to parse_line
-- use a dictionary to count how many times each disease is observed
-- return the dictionary
+# parse_line fucntion
+FUNCTION  def parse_line(line: string) -> list of strings
+
+columns = split line by tab character #.split("\t")
+
+    info_field = columns[7]              
+    info_items = split info_field by ";" #.split(";") 
+
+    af_exac_value = NOT FOUND
+
+FOR each item in info_items:
+        IF item starts with "AF_EXAC=": #startswith("AF_EXAC")
+            raw_value = part of item after "=" #raw_value= item.split("=")[1]
+            IF raw_value contains ",":
+                af_exac_value = float of (raw_value split by "," )[0]
+            ELSE:
+                af_exac_value = float(raw_value)
+            (BREAK out of loop ) 
+
+    IF af_exac_value == NOT FOUND:
+        RETURN empty list
+
+    IF af_exac_value >= 0.0001:
+        RETURN empty list       
+        
+    disease_list = empty list
+
+    FOR each item in info_items:
+        IF item starts with "CLNDN=":
+            raw_diseases = part of item after "="
+            replace "|" with "," in raw_diseases
+            disease_names = split raw_diseases by ","
+
+            FOR each name in disease_names:
+                trimmed_name = strip whitespace from name #trimmed_name=name.strip()
+                IF trimmed_name is empty:
+                    CONTINUE to next name
+                IF trimmed_name == "not_specified" OR trimmed_name == "not_provided":
+                    CONTINUE to next name
+                ADD trimmed_name to disease_list
+            BREAK out of loop  # found CLNDN, no need to keep searching
+
+    RETURN disease_list
+
+# -----------------------------------------------------
+# read_file function
+FUNCTION def read_file(filename: string) -> dictionary
+  results = empty dictionary   #results = {}
+
+    OPEN filename FOR READING as file #with open (filename , "r") as file:
+        FOR each line in file :
+            diseases = parse_line(line)
+
+            FOR each disease in diseases:
+                IF disease already a key in results:
+                    results[disease] = results[disease] + 1 # results[disease] += 1
+                ELSE:
+                    results[disease] = 1
+    CLOSE file
+
+    RETURN results
+
+
+
+if __name__ == "__main__":
+    pprint(read_file("clinvar_20190923_short.vcf"))
+    
+
+
+
+
 ```
 
 # Successes
