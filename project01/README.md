@@ -3,10 +3,29 @@ In this project, we are parsing a Variant Call Format (VCF) file to identify and
 
 # Pseudocode
 
-Put pseudocode in this box:
 
 ```
 
+
+FUNCTION read_file(file_name):
+
+    Create an empty dictionary called disease_counts
+    Open file_name
+
+    FOR each line in the file:
+        Pass line to parse_line
+        Store the returned value as diseases
+
+        FOR each disease in diseases:
+            IF disease is already a key in disease_counts:
+                Increase its value by 1
+            ELSE:
+                Add disease as a key with a value of 1
+
+    RETURN disease_counts
+
+
+#----------------------------------------
 #!/usr/bin/env python
 from pprint import pprint
 
@@ -14,46 +33,50 @@ from pprint import pprint
 # parse_line fucntion
 FUNCTION  def parse_line(line: string) -> list of strings
 
-columns = split line by tab character #.split("\t")
+	IF line starts with "#":
+			continue
 
-    info_field = columns[7]              
-    info_items = split info_field by ";" #.split(";") 
+	columns = split line by tab character #.split("\t")
 
-    af_exac_value = NOT FOUND
+		info_field = columns[7]              
+		info_items = split info_field by ";" #.split(";") 
 
-FOR each item in info_items:
-        IF item starts with "AF_EXAC=": #startswith("AF_EXAC")
-            raw_value = part of item after "=" #raw_value= item.split("=")[1]
-            IF raw_value contains ",":
-                af_exac_value = float of (raw_value split by "," )[0]
-            ELSE:
-                af_exac_value = float(raw_value)
-            (BREAK out of loop ) 
+		af_exac_value = NOT FOUND
 
-    IF af_exac_value == NOT FOUND:
-        RETURN empty list
+	FOR each item in info_items:
+			IF item starts with "AF_EXAC=": #startswith("AF_EXAC")
+			# Split INFO by semicolons to get key-value fields
+				raw_value = part of item after "=" #raw_value= item.split("=")[1]
+				IF raw_value contains ",":
+					af_exac_value = float of (raw_value split by "," )[0]
+				ELSE:
+					af_exac_value = float(raw_value)
+				(BREAK out of loop ) 
 
-    IF af_exac_value >= 0.0001:
-        RETURN empty list       
-        
-    disease_list = empty list
+		IF af_exac_value == NOT FOUND:
+			RETURN empty list
 
-    FOR each item in info_items:
-        IF item starts with "CLNDN=":
-            raw_diseases = part of item after "="
-            replace "|" with "," in raw_diseases
-            disease_names = split raw_diseases by ","
+		IF af_exac_value >= 0.0001:
+			RETURN empty list       
+			
+		disease_list = empty list
 
-            FOR each name in disease_names:
-                trimmed_name = strip whitespace from name #trimmed_name=name.strip()
-                IF trimmed_name is empty:
-                    CONTINUE to next name
-                IF trimmed_name == "not_specified" OR trimmed_name == "not_provided":
-                    CONTINUE to next name
-                ADD trimmed_name to disease_list
-            BREAK out of loop  # found CLNDN, no need to keep searching
+		FOR each item in info_items:
+			IF item starts with "CLNDN=":
+				raw_diseases = part of item after "="
+				replace "|" with "," in raw_diseases
+				disease_names = split raw_diseases by ","
 
-    RETURN disease_list
+				FOR each name in disease_names:
+					trimmed_name = strip whitespace from name #trimmed_name=name.strip()
+					IF trimmed_name is empty:
+						CONTINUE to next name
+					IF trimmed_name == "not_specified" OR trimmed_name == "not_provided":
+						CONTINUE to next name
+					ADD trimmed_name to disease_list
+				BREAK out of loop  # found CLNDN, no need to keep searching
+
+		RETURN disease_list
 
 # -----------------------------------------------------
 # read_file function
