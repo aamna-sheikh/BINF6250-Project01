@@ -100,6 +100,23 @@ FUNCTION def read_file(filename: string) -> dictionary
 
 if __name__ == "__main__":
     pprint(read_file("clinvar_20190923_short.vcf"))
+
+# Example Output
+
+A portion of the output is shown below:
+
+{
+    'Cardiovascular_phenotype': 14,
+    'Cleft_palate': 1,
+    'Congenital_myasthenic_syndrome': 3,
+    'Developmental_regression': 1,
+    'Dystonia': 1,
+    'EEG_with_generalized_epileptiform_discharges': 1,
+    'Ehlers-Danlos_syndrome,_progeroid_type,_2': 2,
+    'Expressive_language_delay': 1,
+    'Failure_to_thrive': 1,
+    'Global_developmental_delay': 2
+}
     
 
 
